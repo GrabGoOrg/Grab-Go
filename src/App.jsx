@@ -1,517 +1,286 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const coffeeAccent = '#C58B52';
-const refreshAccent = '#3FB7B3';
-const snackAccent = '#E88B55';
+const A = { coffee: '#C58B52', refresh: '#3FB7B3', mint: '#8ED6C5', snack: '#E88B55' };
+const nav = ['/', '/menu', '/promos', '/about', '/gallery', '/reviews', '/contact'];
+const menuCategories = ['/coffee', '/refreshments', '/snacks'];
+const label = (path) => path === '/' ? 'Home' : path.slice(1).replace('-', ' ');
 
 const products = [
-  { id: 'espresso', category: 'Coffee', name: 'Espresso', price: 80, rating: 4.8, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=80', description: 'A bold, concentrated coffee shot with a rich crema and clean finish.' },
-  { id: 'americano', category: 'Coffee', name: 'Americano', price: 90, rating: 4.8, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=900&q=80', description: 'Smooth espresso stretched with hot water for a lighter, balanced cup.' },
-  { id: 'latte', category: 'Coffee', name: 'Cafe Latte', price: 110, rating: 4.9, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=900&q=80', description: 'Espresso softened with steamed milk and a silky foam cap.' },
-  { id: 'cappuccino', category: 'Coffee', name: 'Cappuccino', price: 110, rating: 4.9, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=900&q=80', description: 'A classic espresso drink with velvety milk and airy foam.' },
-  { id: 'spanish-latte', category: 'Coffee', name: 'Spanish Latte', price: 120, rating: 5, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80', description: 'Creamy espresso with milk and a lightly sweet Spanish-style finish.' },
-  { id: 'caramel-macchiato', category: 'Coffee', name: 'Caramel Macchiato', price: 125, rating: 4.9, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1579888071069-c107a6f79d82?auto=format&fit=crop&w=900&q=80', description: 'Layered milk, espresso, vanilla, and caramel for a cozy sweet sip.' },
-  { id: 'classic-lemonade', category: 'Refreshments', name: 'Classic Lemonade', price: 90, rating: 4.7, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?auto=format&fit=crop&w=900&q=80', description: 'Fresh lemon, chilled water, and just enough sweetness for a bright reset.' },
-  { id: 'strawberry-lemonade', category: 'Refreshments', name: 'Strawberry Lemonade', price: 110, rating: 4.9, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?auto=format&fit=crop&w=900&q=80', description: 'Tangy lemonade blended with strawberry notes and a cool berry finish.' },
-  { id: 'blue-lemonade', category: 'Refreshments', name: 'Blue Lemonade', price: 100, rating: 4.8, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=900&q=80', description: 'A vibrant citrus cooler with a crisp blue twist.' },
-  { id: 'passion-soda', category: 'Refreshments', name: 'Passion Fruit Soda', price: 110, rating: 4.8, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=80', description: 'Sparkling soda lifted with tropical passion fruit flavor.' },
-  { id: 'peach-tea', category: 'Refreshments', name: 'Peach Iced Tea', price: 100, rating: 4.8, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=900&q=80', description: 'Cold-brewed tea with soft peach sweetness and a refreshing finish.' },
-  { id: 'fruit-tea', category: 'Refreshments', name: 'Fresh Fruit Tea', price: 120, rating: 4.9, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=900&q=80', description: 'Tea, fruit, and citrus layered into a light, colorful refresher.' },
-  { id: 'cookies', category: 'Snacks', name: 'Chocolate Chip Cookies', price: 60, rating: 4.8, accent: snackAccent, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=80', description: 'Golden cookies with melty chocolate chips and crisp edges.' },
-  { id: 'brownie', category: 'Snacks', name: 'Brownie', price: 75, rating: 4.9, accent: snackAccent, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=80', description: 'Fudgy, chocolate-rich, and baked for a dense satisfying bite.' },
-  { id: 'croissant', category: 'Snacks', name: 'Croissant', price: 85, rating: 4.8, accent: snackAccent, image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=80', description: 'Buttery pastry with flaky layers, served warm when available.' },
-  { id: 'cinnamon-roll', category: 'Snacks', name: 'Cinnamon Roll', price: 90, rating: 4.9, accent: snackAccent, image: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?auto=format&fit=crop&w=900&q=80', description: 'Soft rolled bread with cinnamon sugar and a sweet glaze.' },
-  { id: 'cheesecake', category: 'Snacks', name: 'Cheesecake Slice', price: 120, rating: 5, accent: snackAccent, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=80', description: 'Creamy cheesecake with a buttery crust and clean vanilla finish.' },
-  { id: 'club-sandwich', category: 'Snacks', name: 'Club Sandwich', price: 140, rating: 4.8, accent: snackAccent, image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=80', description: 'A stacked sandwich with savory layers, crisp vegetables, and house sauce.' },
+  p('espresso', 'Espresso', 'Coffee', 'Hot Coffee', 'A bold concentrated coffee shot with rich crema.', 80, 4.8, true, A.coffee, 1),
+  p('americano', 'Americano', 'Coffee', 'Hot Coffee', 'Smooth espresso stretched with hot water.', 90, 4.7, false, A.coffee, 2),
+  p('cafe-latte', 'Cafe Latte', 'Coffee', 'Hot Coffee', 'Espresso softened with steamed milk and silky foam.', 110, 4.9, true, A.coffee, 3),
+  p('cappuccino', 'Cappuccino', 'Coffee', 'Hot Coffee', 'Velvety milk, espresso, and airy foam.', 110, 4.8, false, A.coffee, 4),
+  p('spanish-latte', 'Spanish Latte', 'Coffee', 'Hot Coffee', 'Creamy espresso with milk and a lightly sweet finish.', 120, 5, true, A.coffee, 5),
+  p('caramel-macchiato', 'Caramel Macchiato', 'Coffee', 'Hot Coffee', 'Milk, espresso, vanilla, and caramel.', 125, 4.9, true, A.coffee, 6),
+  p('iced-americano', 'Iced Americano', 'Coffee', 'Iced Coffee', 'Espresso over chilled water and ice.', 100, 4.8, false, A.coffee, 7),
+  p('iced-latte', 'Iced Latte', 'Coffee', 'Iced Coffee', 'Cool milk and espresso poured over ice.', 120, 4.8, false, A.coffee, 8),
+  p('iced-spanish-latte', 'Iced Spanish Latte', 'Coffee', 'Iced Coffee', 'Creamy espresso, milk, and sweetness served over ice.', 130, 4.9, true, A.coffee, 9),
+  p('iced-caramel-macchiato', 'Iced Caramel Macchiato', 'Coffee', 'Iced Coffee', 'Cold milk, espresso, vanilla, and caramel.', 135, 4.9, true, A.coffee, 10),
+  p('classic-lemonade', 'Classic Lemonade', 'Refreshments', 'Lemonades', 'Fresh lemon, chilled water, and light sweetness.', 90, 4.7, false, A.refresh, 11),
+  p('strawberry-lemonade', 'Strawberry Lemonade', 'Refreshments', 'Lemonades', 'Tangy lemonade with strawberry notes.', 110, 4.9, true, A.refresh, 12),
+  p('blue-lemonade', 'Blue Lemonade', 'Refreshments', 'Lemonades', 'A vibrant citrus cooler with a blue twist.', 100, 4.8, false, A.refresh, 13),
+  p('passion-fruit-soda', 'Passion Fruit Soda', 'Refreshments', 'Fruit Drinks', 'Sparkling soda with tropical passion fruit.', 110, 4.8, true, A.refresh, 14),
+  p('peach-iced-tea', 'Peach Iced Tea', 'Refreshments', 'Fruit Drinks', 'Cold tea with soft peach sweetness.', 100, 4.8, false, A.refresh, 15),
+  p('fresh-fruit-tea', 'Fresh Fruit Tea', 'Refreshments', 'Fruit Drinks', 'Tea, fruit, and citrus in a colorful refresher.', 120, 4.9, true, A.refresh, 16),
+  p('mint-cucumber-cooler', 'Mint Cucumber Cooler', 'Refreshments', 'Signature Cold Drinks', 'Cucumber, mint, and citrus served cold.', 115, 4.8, false, A.mint, 17),
+  p('berry-sparkler', 'Berry Sparkler', 'Refreshments', 'Signature Cold Drinks', 'Mixed berry fizz with a bright chilled finish.', 125, 4.9, true, A.mint, 18),
+  p('cookies', 'Chocolate Chip Cookies', 'Snacks', 'Sweets', 'Golden cookies with melty chocolate chips.', 60, 4.8, true, A.snack, 19, false),
+  p('brownie', 'Brownie', 'Snacks', 'Sweets', 'Fudgy, chocolate-rich, and satisfying.', 75, 4.9, true, A.snack, 20, false),
+  p('croissant', 'Croissant', 'Snacks', 'Pastries', 'Buttery pastry with flaky layers.', 85, 4.8, false, A.snack, 21, false),
+  p('cinnamon-roll', 'Cinnamon Roll', 'Snacks', 'Pastries', 'Soft rolled bread with cinnamon sugar glaze.', 90, 4.9, false, A.snack, 22, false),
+  p('cheesecake-slice', 'Cheesecake Slice', 'Snacks', 'Cakes', 'Creamy cheesecake with a buttery crust.', 120, 5, true, A.snack, 23, false),
+  p('club-sandwich', 'Club Sandwich', 'Snacks', 'Savory', 'Stacked sandwich with crisp vegetables and house sauce.', 140, 4.8, true, A.snack, 24, false),
 ];
 
 const promos = [
-  { id: 'coffee-snack-combo', category: 'Promos', name: 'Coffee + Snack Combo', price: 159, original: 195, rating: 4.9, accent: coffeeAccent, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80', description: 'Pair a signature coffee with a fresh snack for a quick cafe break.' },
-  { id: 'refreshment-snack-combo', category: 'Promos', name: 'Refreshment + Snack Combo', price: 159, original: 205, rating: 4.9, accent: refreshAccent, image: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=900&q=80', description: 'A chilled refresher plus your choice of snack, ready for pickup or delivery.' },
-  { id: 'any-two-drinks', category: 'Promos', name: 'Any 2 Drinks', price: 210, original: 240, rating: 4.8, accent: snackAccent, image: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=80', description: 'Share two drinks or keep both for yourself. We understand either way.' },
+  promo('coffee-snack-combo', 'Coffee + Snack Combo', 'Pair a signature coffee with a fresh snack.', 159, 180, A.coffee, 25),
+  promo('refreshment-snack-combo', 'Refreshment + Snack Combo', 'A chilled refresher plus your choice of snack.', 159, 180, A.refresh, 26),
+  promo('any-two-drinks', 'Any 2 Drinks', 'Share two drinks or keep both for yourself.', 210, 240, A.snack, 27),
 ];
-
 const catalog = [...products, ...promos];
 const gallery = [
-  ...catalog.slice(0, 9).map((item) => ({ src: item.image, title: item.name })),
-  { src: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=80', title: 'Cafe Interior' },
-  { src: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80', title: 'Coffee Bar' },
-  { src: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80', title: 'Dessert Counter' },
+  ...catalog.slice(0, 10).map((x) => ({ title: x.name, category: x.category === 'Promo' ? 'Shop' : x.category, image: x.image })),
+  { title: 'Cafe Counter', category: 'Shop', image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=80' },
+  { title: 'Coffee Bar', category: 'Shop', image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80' },
+  { title: 'Dessert Display', category: 'Snacks', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80' },
 ];
-
 const defaultReviews = [
-  { name: 'Maria S.', rating: 5, comment: 'Love the iced drinks. The coffee is really good and the service is fast.', date: 'Aug 22, 2026' },
-  { name: 'John R.', rating: 5, comment: 'Perfect place to grab a drink and a quick snack before work.', date: 'Aug 19, 2026' },
+  { name: 'Maria S.', rating: 5, comment: 'Love the iced drinks. The coffee is also really good and the service is fast.', date: 'Aug 22, 2026' },
+  { name: 'John R.', rating: 5, comment: 'Perfect place to grab a drink and a quick snack.', date: 'Aug 19, 2026' },
   { name: 'Elaine D.', rating: 5, comment: 'The Spanish Latte and brownies are my favorite combo.', date: 'Aug 14, 2026' },
 ];
 
-function load(key, fallback) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
-  } catch {
-    return fallback;
-  }
+function p(id, name, category, subcategory, description, price, rating, isBestSeller, accent, imageId, customization = true) {
+  const photos = [
+    'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1579888071069-c107a6f79d82?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1517959105821-eaf2591984ca?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1621263764928-df1444c5e859?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1509365465985-25d11c17e812?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=80',
+  ];
+  return { id, name, category, subcategory, description, price, image: photos[imageId - 1], rating, isBestSeller, isFavorite: false, accent, customization };
 }
-
-function currency(value) {
-  return `PHP ${value.toLocaleString('en-PH')}`;
+function promo(id, name, description, price, originalPrice, accent, imageId) {
+  return { ...p(id, name, 'Promo', 'Combos', description, price, 4.9, true, accent, imageId, false), originalPrice };
 }
-
-function customizationText(item) {
-  const parts = [];
-  if (item.size) parts.push(item.size);
-  if (item.ice) parts.push(item.ice);
-  if (item.sugar) parts.push(`${item.sugar} sugar`);
-  return parts.join(' / ') || 'Standard';
-}
+const get = (k, f) => { try { return JSON.parse(localStorage.getItem(k)) ?? f; } catch { return f; } };
+const cash = (n) => `\u20B1${Number(n).toLocaleString('en-PH')}`;
+const rating = (n) => `${'\u2605'.repeat(Math.round(n))} ${n}`;
+const pathNow = () => window.location.pathname === '/' ? '/' : window.location.pathname.replace(/\/$/, '');
 
 export default function App() {
-  const [active, setActive] = useState('home');
+  const [route, setRoute] = useState(pathNow);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [detail, setDetail] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState(null);
-  const [cart, setCart] = useState(() => load('grabgo-cart', []));
-  const [favorites, setFavorites] = useState(() => load('grabgo-favorites', []));
-  const [reviews, setReviews] = useState(() => load('grabgo-reviews', defaultReviews));
-  const [lightbox, setLightbox] = useState(null);
-  const [reviewFormOpen, setReviewFormOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState(() => get('grabgo-cart', []));
+  const [favorites, setFavorites] = useState(() => get('grabgo-favorites', []));
+  const [reviews, setReviews] = useState(() => get('grabgo-reviews', defaultReviews));
+  const [orders, setOrders] = useState(() => get('grabgo-orders', []));
+  const [lastOrder, setLastOrder] = useState(() => get('grabgo-last-order', null));
+  const [toasts, setToasts] = useState([]);
 
+  useEffect(() => {
+    const pop = () => setRoute(pathNow());
+    window.addEventListener('popstate', pop);
+    const timer = setTimeout(() => setLoading(false), 400);
+    return () => { window.removeEventListener('popstate', pop); clearTimeout(timer); };
+  }, []);
   useEffect(() => localStorage.setItem('grabgo-cart', JSON.stringify(cart)), [cart]);
   useEffect(() => localStorage.setItem('grabgo-favorites', JSON.stringify(favorites)), [favorites]);
   useEffect(() => localStorage.setItem('grabgo-reviews', JSON.stringify(reviews)), [reviews]);
+  useEffect(() => localStorage.setItem('grabgo-orders', JSON.stringify(orders)), [orders]);
+  useEffect(() => localStorage.setItem('grabgo-last-order', JSON.stringify(lastOrder)), [lastOrder]);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const discount = subtotal >= 500 ? 50 : 0;
-  const deliveryFee = checkoutOpen ? 49 : 0;
-
-  const navigate = (section) => {
-    setActive(section);
-    setMenuOpen(false);
-    setCheckoutOpen(false);
-    setTimeout(() => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }), 30);
+  const toast = (message) => {
+    const id = crypto.randomUUID();
+    setToasts((x) => [...x, { id, message }]);
+    setTimeout(() => setToasts((x) => x.filter((t) => t.id !== id)), 2400);
   };
-
-  const addToCart = (product, options = {}) => {
-    const item = {
-      ...product,
-      cartKey: `${product.id}-${options.size || 'Standard'}-${options.ice || 'Standard'}-${options.sugar || 'Standard'}`,
-      qty: options.qty || 1,
-      size: options.size,
-      ice: options.ice,
-      sugar: options.sugar,
-    };
-    setCart((current) => {
-      const existing = current.find((entry) => entry.cartKey === item.cartKey);
-      if (existing) return current.map((entry) => entry.cartKey === item.cartKey ? { ...entry, qty: entry.qty + item.qty } : entry);
-      return [...current, item];
-    });
-    setCartOpen(true);
+  const go = (path) => {
+    window.history.pushState({}, '', path);
+    setRoute(path); setMenuOpen(false); setSearchOpen(false); setCartOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const toggleFavorite = (id) => {
-    setFavorites((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const add = (product, opts = {}) => {
+    const price = product.price + (opts.size === 'Large' ? 20 : 0);
+    const item = { ...product, price, qty: opts.qty || 1, size: opts.size, ice: opts.ice, sugar: opts.sugar, cartKey: `${product.id}-${price}-${opts.size || ''}-${opts.ice || ''}-${opts.sugar || ''}` };
+    setCart((items) => items.some((x) => x.cartKey === item.cartKey) ? items.map((x) => x.cartKey === item.cartKey ? { ...x, qty: x.qty + item.qty } : x) : [...items, item]);
+    toast(`\u2713 ${product.name} added to cart`);
   };
-
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return catalog;
-    return catalog.filter((item) =>
-      item.name.toLowerCase().includes(term) ||
-      item.category.toLowerCase().includes(term) ||
-      item.description.toLowerCase().includes(term),
-    );
-  }, [search]);
-
-  return (
-    <div className="site-shell">
-      <Header
-        cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
-        favoriteCount={favorites.length}
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
-        navigate={navigate}
-        openSearch={() => setSearchOpen(true)}
-        openCart={() => setCartOpen(true)}
-      />
-
-      <main>
-        <Hero navigate={navigate} />
-        <BusinessPanel navigate={navigate} />
-        <MenuSection title="Our Menu" id="menu" items={products} addToCart={addToCart} setDetail={setDetail} favorites={favorites} toggleFavorite={toggleFavorite} />
-        <CategorySection id="coffee" title="Coffee" subtitle="Bold classics and creamy signatures." category="Coffee" addToCart={addToCart} setDetail={setDetail} favorites={favorites} toggleFavorite={toggleFavorite} />
-        <CategorySection id="refreshments" title="Refreshments" subtitle="Bright, chilled, and made for warm afternoons." category="Refreshments" addToCart={addToCart} setDetail={setDetail} favorites={favorites} toggleFavorite={toggleFavorite} />
-        <CategorySection id="snacks" title="Snacks" subtitle="Fresh pastries, sweets, and savory bites." category="Snacks" addToCart={addToCart} setDetail={setDetail} favorites={favorites} toggleFavorite={toggleFavorite} />
-        <Promos addToCart={addToCart} setDetail={setDetail} />
-        <About />
-        <Gallery lightbox={lightbox} setLightbox={setLightbox} />
-        <Reviews reviews={reviews} setReviews={setReviews} formOpen={reviewFormOpen} setFormOpen={setReviewFormOpen} />
-        <Contact />
-      </main>
-
-      <Footer navigate={navigate} />
-
-      {searchOpen && <SearchOverlay search={search} setSearch={setSearch} results={filtered} close={() => setSearchOpen(false)} setDetail={setDetail} addToCart={addToCart} navigate={navigate} />}
-      {detail && <ProductModal product={detail} close={() => setDetail(null)} addToCart={addToCart} buyNow={(product, options) => { addToCart(product, options); setCartOpen(false); setDetail(null); setCheckoutOpen(true); }} />}
-      {cartOpen && <CartDrawer cart={cart} setCart={setCart} close={() => setCartOpen(false)} subtotal={subtotal} discount={discount} checkout={() => { setCartOpen(false); setCheckoutOpen(true); }} />}
-      {checkoutOpen && <Checkout cart={cart} subtotal={subtotal} discount={discount} setConfirmation={setConfirmation} setCheckoutOpen={setCheckoutOpen} setCart={setCart} />}
-      {confirmation && <Confirmation order={confirmation} close={() => setConfirmation(null)} navigate={navigate} />}
-      {lightbox !== null && <Lightbox index={lightbox} setIndex={setLightbox} />}
-    </div>
-  );
-}
-
-function Header({ cartCount, favoriteCount, menuOpen, setMenuOpen, navigate, openSearch, openCart }) {
-  const links = ['home', 'menu', 'coffee', 'refreshments', 'snacks', 'promos', 'about', 'gallery', 'reviews', 'contact'];
-  return (
-    <header className="topbar">
-      <button className="brand" onClick={() => navigate('home')}>
-        <span className="brand-mark">G&G</span>
-        <span><strong>Grab&Go</strong><small>Coffee / Refreshments / Snacks</small></span>
-      </button>
-      <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">Menu</button>
-      <nav className={menuOpen ? 'nav open' : 'nav'}>
-        {links.map((link) => <button key={link} onClick={() => navigate(link)}>{link}</button>)}
-      </nav>
-      <div className="nav-actions">
-        <button className="icon-btn" onClick={openSearch}>Search</button>
-        <button className="icon-btn" onClick={() => navigate('menu')}>Fav {favoriteCount}</button>
-        <button className="icon-btn" onClick={openCart}>Cart {cartCount}</button>
-        <button className="primary small" onClick={() => navigate('menu')}>Order Now</button>
-      </div>
-    </header>
-  );
-}
-
-function Hero({ navigate }) {
-  return (
-    <section id="home" className="hero">
-      <div className="hero-copy">
-        <p className="eyebrow">Grab&Go / Coffee / Refreshments / Snacks</p>
-        <h1>Good Drinks. Great Moments. Grab & Go.</h1>
-        <p>Your favorite coffee, refreshing drinks, and delicious snacks, ready whenever you are.</p>
-        <div className="hero-actions">
-          <button className="primary" onClick={() => navigate('menu')}>Order Now</button>
-          <button className="ghost" onClick={() => navigate('menu')}>View Menu</button>
-        </div>
-      </div>
-      <div className="hero-media">
-        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1100&q=80" alt="Coffee and snacks" />
-        <img src="https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=800&q=80" alt="Refreshment drinks" />
-        <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80" alt="Fresh pastry" />
-      </div>
-    </section>
-  );
-}
-
-function BusinessPanel({ navigate }) {
-  return (
-    <section className="profile-panel">
-      <div><strong>Grab&Go</strong><span>4.9 Customer Rating</span></div>
-      <div><strong>Open Today</strong><span>8:00 AM - 9:00 PM</span></div>
-      <div><strong>Location</strong><span>Your City, Philippines</span></div>
-      <div><strong>Phone</strong><span>09XX XXX XXXX</span></div>
-      <button className="primary" onClick={() => navigate('menu')}>Order Now</button>
-    </section>
-  );
-}
-
-function MenuSection(props) {
-  return (
-    <section id={props.id} className="section">
-      <SectionTitle title={props.title} text="Browse coffee, cool refreshments, snacks, and quick deals built for pickup or delivery." />
-      <div className="product-grid">
-        {props.items.map((item) => <ProductCard key={item.id} item={item} {...props} />)}
-      </div>
-    </section>
-  );
-}
-
-function CategorySection({ id, title, subtitle, category, addToCart, setDetail, favorites, toggleFavorite }) {
-  const items = products.filter((item) => item.category === category);
-  return (
-    <section id={id} className="section">
-      <SectionTitle title={title} text={subtitle} />
-      <div className="product-grid">
-        {items.map((item) => <ProductCard key={item.id} item={item} addToCart={addToCart} setDetail={setDetail} favorites={favorites} toggleFavorite={toggleFavorite} />)}
-      </div>
-    </section>
-  );
-}
-
-function SectionTitle({ title, text }) {
-  return <div className="section-title"><p className="eyebrow">Grab&Go</p><h2>{title}</h2><p>{text}</p></div>;
-}
-
-function ProductCard({ item, addToCart, setDetail, favorites = [], toggleFavorite = () => {} }) {
-  return (
-    <article className="product-card" style={{ '--accent': item.accent }}>
-      <div className="product-image"><img src={item.image} alt={item.name} /><button onClick={() => toggleFavorite(item.id)}>{favorites.includes(item.id) ? 'Saved' : 'Save'}</button></div>
-      <div className="product-body">
-        <span className="pill">{item.category}</span>
-        <h3>{item.name}</h3>
-        <p>{item.description}</p>
-        <div className="product-meta"><strong>{currency(item.price)}</strong><span>Star {item.rating}</span></div>
-        <div className="card-actions">
-          <button className="primary" onClick={() => addToCart(item)}>Order</button>
-          <button className="ghost" onClick={() => setDetail(item)}>Details</button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function Promos({ addToCart, setDetail }) {
-  return (
-    <section id="promos" className="section promos">
-      <SectionTitle title="Special Offers" text="Limited combinations with friendlier prices and the same Grab&Go speed." />
-      <div className="product-grid three">
-        {promos.map((item) => (
-          <article className="product-card promo-card" key={item.id} style={{ '--accent': item.accent }}>
-            <div className="product-image"><img src={item.image} alt={item.name} /></div>
-            <div className="product-body">
-              <span className="pill">Promo</span>
-              <h3>{item.name}</h3>
-              <p>{item.description}</p>
-              <div className="product-meta"><strong>{currency(item.price)}</strong><span className="strike">{currency(item.original)}</span></div>
-              <div className="card-actions">
-                <button className="primary" onClick={() => addToCart(item)}>Order Now</button>
-                <button className="ghost" onClick={() => setDetail(item)}>Details</button>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ProductModal({ product, close, addToCart, buyNow }) {
-  const isDrink = product.category === 'Coffee' || product.category === 'Refreshments';
-  const [qty, setQty] = useState(1);
-  const [size, setSize] = useState('Regular');
-  const [ice, setIce] = useState('Regular Ice');
-  const [sugar, setSugar] = useState('100%');
-  const options = { qty, size: isDrink ? size : undefined, ice: isDrink ? ice : undefined, sugar: isDrink ? sugar : undefined };
-  return (
-    <div className="modal-backdrop">
-      <div className="modal product-modal">
-        <button className="close" onClick={close}>Close</button>
-        <img src={product.image} alt={product.name} />
-        <div>
-          <span className="pill">{product.category}</span>
-          <h2>{product.name}</h2>
-          <p>{product.description}</p>
-          <div className="product-meta"><strong>{currency(product.price)}</strong><span>Star {product.rating}</span></div>
-          <div className="qty-row"><button onClick={() => setQty(Math.max(1, qty - 1))}>-</button><strong>{qty}</strong><button onClick={() => setQty(qty + 1)}>+</button></div>
-          {isDrink && <Customize size={size} setSize={setSize} ice={ice} setIce={setIce} sugar={sugar} setSugar={setSugar} />}
-          <div className="card-actions">
-            <button className="primary" onClick={() => { addToCart(product, options); close(); }}>Add To Cart</button>
-            <button className="ghost" onClick={() => buyNow(product, options)}>Buy Now</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Customize({ size, setSize, ice, setIce, sugar, setSugar }) {
-  return (
-    <div className="customize">
-      <Option label="Size" value={size} setValue={setSize} options={['Regular', 'Large']} />
-      <Option label="Ice" value={ice} setValue={setIce} options={['No Ice', 'Less Ice', 'Regular Ice', 'Extra Ice']} />
-      <Option label="Sugar" value={sugar} setValue={setSugar} options={['0%', '25%', '50%', '75%', '100%']} />
-    </div>
-  );
-}
-
-function Option({ label, value, setValue, options }) {
-  return <label>{label}<select value={value} onChange={(event) => setValue(event.target.value)}>{options.map((option) => <option key={option}>{option}</option>)}</select></label>;
-}
-
-function SearchOverlay({ search, setSearch, results, close, setDetail, addToCart, navigate }) {
-  return (
-    <div className="modal-backdrop">
-      <div className="modal search-modal">
-        <button className="close" onClick={close}>Close</button>
-        <h2>Search Grab&Go</h2>
-        <input autoFocus value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search coffee, refreshments, snacks..." />
-        <div className="search-results">
-          {results.length ? results.map((item) => (
-            <button key={item.id} className="search-item" onClick={() => { setDetail(item); close(); }}>
-              <img src={item.image} alt="" /><span>{item.name}<small>{item.category} / {currency(item.price)}</small></span>
-            </button>
-          )) : <div className="empty"><p>No products found.</p><button className="primary" onClick={() => { close(); navigate('menu'); }}>View All Products</button></div>}
-        </div>
-        <button className="primary wide" onClick={() => results[0] && addToCart(results[0])}>Order First Result</button>
-      </div>
-    </div>
-  );
-}
-
-function CartDrawer({ cart, setCart, close, subtotal, discount, checkout }) {
-  const total = subtotal - discount;
-  const updateQty = (key, qty) => setCart((current) => current.map((item) => item.cartKey === key ? { ...item, qty } : item).filter((item) => item.qty > 0));
-  return (
-    <aside className="drawer">
-      <button className="close" onClick={close}>Close</button>
-      <h2>Your Cart</h2>
-      <div className="cart-list">
-        {cart.length ? cart.map((item) => (
-          <div className="cart-item" key={item.cartKey}>
-            <img src={item.image} alt={item.name} />
-            <div><strong>{item.name}</strong><small>{customizationText(item)}</small><small>{currency(item.price)} each</small></div>
-            <div className="qty-row"><button onClick={() => updateQty(item.cartKey, item.qty - 1)}>-</button><strong>{item.qty}</strong><button onClick={() => updateQty(item.cartKey, item.qty + 1)}>+</button></div>
-            <button onClick={() => updateQty(item.cartKey, 0)}>Remove</button>
-          </div>
-        )) : <p className="empty">Your cart is empty.</p>}
-      </div>
-      <div className="summary">
-        <span>Subtotal <strong>{currency(subtotal)}</strong></span>
-        <span>Discount <strong>-{currency(discount)}</strong></span>
-        <span>Delivery Fee <strong>Calculated at checkout</strong></span>
-        <span className="total">Total <strong>{currency(total)}</strong></span>
-      </div>
-      <button className="primary wide" disabled={!cart.length} onClick={checkout}>Proceed To Checkout</button>
-      <button className="ghost wide" disabled={!cart.length} onClick={() => setCart([])}>Clear Cart</button>
-    </aside>
-  );
-}
-
-function Checkout({ cart, subtotal, discount, setConfirmation, setCheckoutOpen, setCart }) {
-  const [type, setType] = useState('Pickup');
-  const [form, setForm] = useState({ name: '', mobile: '', email: '', time: '', address: '', landmark: '' });
-  const deliveryFee = type === 'Delivery' ? 49 : 0;
-  const total = subtotal - discount + deliveryFee;
-  const submit = (event) => {
-    event.preventDefault();
-    const required = type === 'Delivery' ? ['name', 'mobile', 'email', 'address'] : ['name', 'mobile', 'email', 'time'];
-    if (required.some((field) => !form[field].trim())) return alert('Please complete the required checkout fields.');
-    const stamp = new Date();
-    const order = {
-      number: `GO-${stamp.getFullYear()}${String(stamp.getMonth() + 1).padStart(2, '0')}${String(stamp.getDate()).padStart(2, '0')}-${Math.floor(100 + Math.random() * 900)}`,
-      date: stamp.toLocaleString(),
-      customer: form.name,
-      type,
-      payment: 'Cash',
-      items: cart,
-      total,
-      eta: type === 'Delivery' ? '35-45 minutes' : '15-20 minutes',
-    };
-    setConfirmation(order);
-    setCheckoutOpen(false);
-    setCart([]);
+  const fav = (id) => setFavorites((x) => {
+    const saved = x.includes(id);
+    toast(saved ? '\u2713 Removed from favorites' : '\u2665 Added to favorites');
+    return saved ? x.filter((v) => v !== id) : [...x, id];
+  });
+  const placeOrder = (order) => {
+    setOrders((x) => [order, ...x]); setLastOrder(order); setCart([]);
+    toast('\u2713 Order placed successfully'); go('/order-confirmation');
   };
+  const props = { go, add, fav, cart, setCart, favorites, reviews, setReviews, loading, toast, placeOrder, lastOrder };
+
   return (
-    <div className="modal-backdrop">
-      <form className="modal checkout" onSubmit={submit}>
-        <button type="button" className="close" onClick={() => setCheckoutOpen(false)}>Close</button>
-        <h2>Checkout</h2>
-        <fieldset><legend>Customer Details</legend><input placeholder="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /><input placeholder="Mobile Number" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} /><input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></fieldset>
-        <fieldset><legend>Order Type</legend><div className="segmented"><button type="button" className={type === 'Pickup' ? 'active' : ''} onClick={() => setType('Pickup')}>Pickup</button><button type="button" className={type === 'Delivery' ? 'active' : ''} onClick={() => setType('Delivery')}>Delivery</button></div>{type === 'Pickup' ? <input placeholder="Pickup time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} /> : <><input placeholder="Delivery address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /><input placeholder="Landmark" value={form.landmark} onChange={(e) => setForm({ ...form, landmark: e.target.value })} /></>}</fieldset>
-        <fieldset><legend>Payment</legend><label className="cash"><input type="radio" checked readOnly /> Cash only<span>{type === 'Pickup' ? 'Pay upon pickup.' : 'Pay the delivery rider upon receiving your order.'}</span></label></fieldset>
-        <div className="summary"><span>Subtotal <strong>{currency(subtotal)}</strong></span><span>Discount <strong>-{currency(discount)}</strong></span><span>Delivery Fee <strong>{currency(deliveryFee)}</strong></span><span className="total">Total <strong>{currency(total)}</strong></span></div>
-        <button className="primary wide" disabled={!cart.length}>Place Order</button>
-      </form>
+    <div className="app">
+      <Navbar route={route} go={go} menuOpen={menuOpen} setMenuOpen={setMenuOpen} openSearch={() => setSearchOpen(true)} openCart={() => setCartOpen(true)} cartCount={cart.reduce((s, x) => s + x.qty, 0)} favoriteCount={favorites.length} />
+      <main><Routes route={route} {...props} /></main>
+      <Footer go={go} />
+      {searchOpen && <SearchOverlay close={() => setSearchOpen(false)} go={go} add={add} />}
+      {cartOpen && <CartDrawer close={() => setCartOpen(false)} {...props} />}
+      <div className="toasts">{toasts.map((t) => <div key={t.id}>{t.message}</div>)}</div>
     </div>
   );
 }
 
-function Confirmation({ order, close, navigate }) {
-  return (
-    <div className="modal-backdrop">
-      <div className="modal confirmation">
-        <h2>Order Placed Successfully!</h2>
-        <p><strong>Order #{order.number}</strong></p>
-        <p>{order.customer} / {order.date}</p>
-        <p>{order.type} / {order.payment} / Estimated prep: {order.eta}</p>
-        <div className="cart-list">{order.items.map((item) => <div className="cart-item" key={item.cartKey}><img src={item.image} alt="" /><div><strong>{item.name}</strong><small>{customizationText(item)}</small></div><strong>{item.qty} x {currency(item.price)}</strong></div>)}</div>
-        <div className="summary"><span className="total">Total <strong>{currency(order.total)}</strong></span></div>
-        <div className="card-actions"><button className="primary" onClick={close}>Continue Shopping</button><button className="ghost" onClick={() => { close(); navigate('home'); }}>Back To Home</button></div>
-      </div>
-    </div>
-  );
+function Routes({ route, ...props }) {
+  const product = route.match(/^\/product\/(.+)$/)?.[1];
+  if (product) return <ProductDetails id={product} {...props} />;
+  if (route === '/') return <Home {...props} />;
+  if (route === '/menu') return <Menu {...props} />;
+  if (route === '/coffee') return <Category category="Coffee" title="Coffee" text="Bold, smooth, and made for your everyday moments." tone="coffee-page" {...props} />;
+  if (route === '/refreshments') return <Category category="Refreshments" title="Refreshments" text="Cool, colorful, and refreshing drinks for every mood." tone="refresh-page" {...props} />;
+  if (route === '/snacks') return <Category category="Snacks" title="Snacks & Bites" text="The perfect little bites to pair with your favorite drink." tone="snack-page" {...props} />;
+  if (route === '/promos') return <Promos {...props} />;
+  if (route === '/favorites') return <Favorites {...props} />;
+  if (route === '/cart') return <CartPage {...props} />;
+  if (route === '/checkout') return <Checkout {...props} />;
+  if (route === '/order-confirmation') return <Confirmation {...props} />;
+  if (route === '/about') return <About />;
+  if (route === '/gallery') return <Gallery />;
+  if (route === '/reviews') return <Reviews {...props} />;
+  if (route === '/contact') return <Contact toast={props.toast} />;
+  return <Empty title="Product not found" text="That page is not available." action="Back To Menu" onAction={() => props.go('/menu')} />;
 }
 
-function About() {
-  return (
-    <section id="about" className="section split">
-      <div><SectionTitle title="About Grab&Go" text="Grab&Go is a modern cafe and refreshment destination offering quality coffee, refreshing beverages, and delicious snacks for customers who want something convenient, satisfying, and easy to enjoy on the go." /></div>
-      <div className="feature-grid">
-        {['Quality|Fresh ingredients and carefully prepared drinks.', 'Convenience|Quick and easy ordering.', 'Variety|Coffee, refreshments, and snacks for every craving.'].map((entry) => {
-          const [title, text] = entry.split('|');
-          return <article className="feature" key={title}><h3>{title}</h3><p>{text}</p></article>;
-        })}
-      </div>
-    </section>
-  );
+function Navbar({ route, go, menuOpen, setMenuOpen, openSearch, openCart, cartCount, favoriteCount }) {
+  return <header className="navbar"><button className="brand" onClick={() => go('/')}><span>G&G</span><strong>Grab&Go<small>Coffee / Refreshments / Snacks</small></strong></button><button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>Menu</button><nav className={menuOpen ? 'open' : ''}>{nav.map((x) => x === '/menu' ? <div className="menu-link" key={x}><button className={route === x || menuCategories.includes(route) ? 'active' : ''} onClick={() => go('/menu')}>Menu</button><div className="menu-dropdown">{menuCategories.map((path) => <button key={path} onClick={() => go(path)}>{label(path)}</button>)}</div></div> : <button className={route === x ? 'active' : ''} key={x} onClick={() => go(x)}>{label(x)}</button>)}</nav><div className="nav-actions"><button onClick={openSearch}>Search</button><button onClick={() => go('/favorites')}>Heart {favoriteCount}</button><button onClick={openCart}>Cart {cartCount}</button><button className="primary small" onClick={() => go('/menu')}>Order Now</button></div></header>;
 }
 
-function Gallery({ lightbox, setLightbox }) {
-  return (
-    <section id="gallery" className="section">
-      <SectionTitle title="Gallery" text="A look at the drinks, snacks, and cozy counter moments customers come back for." />
-      <div className="gallery-grid">
-        {gallery.map((item, index) => <button key={item.title} onClick={() => setLightbox(index)}><img src={item.src} alt={item.title} /><span>{item.title}</span></button>)}
-      </div>
-    </section>
-  );
+function Home(props) {
+  return <><Hero go={props.go} /><Section title="What Are You Craving?" text="Pick your favorite and let us handle the rest."><div className="category-grid">{[['Coffee', '/coffee', A.coffee, 'Bold, smooth, and comforting.'], ['Refreshments', '/refreshments', A.refresh, 'Cool, colorful, and refreshing.'], ['Snacks', '/snacks', A.snack, 'Small bites, big satisfaction.']].map(([t, pth, c, d]) => <article className="feature" style={{ '--accent': c }} key={t}><h3>{t}</h3><p>{d}</p><button className="secondary" onClick={() => props.go(pth)}>Explore {t}</button></article>)}</div></Section><Section title="Customer Favorites" text="Six crowd favorites customers keep coming back for.">{props.loading ? <Skeleton /> : <Grid items={products.filter((x) => x.isBestSeller).slice(0, 6)} {...props} />}</Section><Highlight title="Coffee Highlight" category="Coffee" go={props.go} /><Highlight title="Refreshments Highlight" category="Refreshments" go={props.go} /><Highlight title="Snacks Highlight" category="Snacks" go={props.go} /><Promos compact {...props} /><Why /><Reviews compact {...props} /><Gallery compact /><Business go={props.go} /><section className="final-cta"><h2>What are you craving today?</h2><p>Grab your favorite drink, add a snack, and enjoy.</p><button className="primary" onClick={() => props.go('/menu')}>Order Now</button><button className="secondary" onClick={() => props.go('/menu')}>View Menu</button></section></>;
 }
 
-function Lightbox({ index, setIndex }) {
-  const item = gallery[index];
-  const move = (step) => setIndex((index + step + gallery.length) % gallery.length);
-  return (
-    <div className="modal-backdrop lightbox">
-      <button className="close" onClick={() => setIndex(null)}>Close</button>
-      <button onClick={() => move(-1)}>Previous</button>
-      <img src={item.src} alt={item.title} />
-      <button onClick={() => move(1)}>Next</button>
-    </div>
-  );
+function Hero({ go }) {
+  return <section className="hero"><div><p className="eyebrow">Welcome to Grab&Go</p><h1>Good Drinks.<br />Great Moments.</h1><strong>Coffee / Refreshments / Snacks</strong><p>Your favorite coffee, refreshing drinks, and delicious snacks, ready whenever you are.</p><button className="primary" onClick={() => go('/menu')}>Order Now</button><button className="secondary" onClick={() => go('/menu')}>Explore Menu</button></div><div className="hero-media"><img src={products[4].image} alt="Coffee" /><img src={products[13].image} alt="Cold beverage" /><img src={products[20].image} alt="Snack" /></div></section>;
 }
 
-function Reviews({ reviews, setReviews, formOpen, setFormOpen }) {
-  const [draft, setDraft] = useState({ name: '', rating: '5', comment: '' });
-  const submit = (event) => {
-    event.preventDefault();
-    if (!draft.name.trim() || !draft.comment.trim()) return alert('Please add your name and review.');
-    setReviews([{ ...draft, rating: Number(draft.rating), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }, ...reviews]);
-    setDraft({ name: '', rating: '5', comment: '' });
-    setFormOpen(false);
-  };
-  return (
-    <section id="reviews" className="section">
-      <SectionTitle title="Customer Reviews" text={`${reviews.length} reviews / Overall 4.9 out of 5`} />
-      <div className="reviews-grid">{reviews.map((review, index) => <article className="review" key={`${review.name}-${index}`}><strong>{review.name}</strong><span>{'Star '.repeat(review.rating)}</span><p>{review.comment}</p><small>{review.date}</small></article>)}</div>
-      <button className="primary" onClick={() => setFormOpen(true)}>Write A Review</button>
-      {formOpen && <div className="modal-backdrop"><form className="modal review-form" onSubmit={submit}><button type="button" className="close" onClick={() => setFormOpen(false)}>Close</button><h2>Write A Review</h2><input placeholder="Name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /><select value={draft.rating} onChange={(e) => setDraft({ ...draft, rating: e.target.value })}><option>5</option><option>4</option><option>3</option></select><textarea placeholder="Comment" value={draft.comment} onChange={(e) => setDraft({ ...draft, comment: e.target.value })} /><button className="primary">Submit Review</button></form></div>}
-    </section>
-  );
+function Menu(props) {
+  const [q, setQ] = useState(''); const [cat, setCat] = useState('All'); const [sort, setSort] = useState('Recommended');
+  const items = useMemo(() => filter(catalog, q, cat, sort), [q, cat, sort]);
+  return <Page title="Our Menu" text="Everything you need for your next grab-and-go moment."><Filter q={q} setQ={setQ} cat={cat} setCat={setCat} sort={sort} setSort={setSort} />{props.loading ? <Skeleton count={8} /> : items.length ? <Grid items={items} {...props} /> : <Empty title="No products found" text="Try a different search or filter." action="View Menu" onAction={() => { setQ(''); setCat('All'); }} />}</Page>;
 }
 
-function Contact() {
-  return (
-    <section id="contact" className="section contact">
-      <SectionTitle title="Find Us" text="Your City, Philippines" />
-      <div className="contact-grid">
-        <div className="map">Map Area<br />Grab&Go / Your City, Philippines</div>
-        <div className="info-card"><h3>Business Information</h3><p><strong>Opening Hours</strong><br />Monday-Sunday<br />8:00 AM - 9:00 PM</p><p><strong>Phone</strong><br />09XX XXX XXXX</p><p><strong>Email</strong><br /><a href="mailto:hello@grabandgo.example">hello@grabandgo.example</a></p><p><strong>Social Media</strong><br />Facebook / Instagram / TikTok</p><button className="primary">Get Directions</button></div>
-      </div>
-    </section>
-  );
+function Category({ category, title, text, tone, ...props }) {
+  const groups = products.filter((x) => x.category === category).reduce((m, x) => ({ ...m, [x.subcategory]: [...(m[x.subcategory] || []), x] }), {});
+  return <Page className={tone} title={title} text={text}>{Object.entries(groups).map(([name, items]) => <section className="menu-group" key={name}><h2>{name}</h2>{props.loading ? <Skeleton count={4} /> : <Grid items={items} {...props} />}</section>)}</Page>;
 }
 
-function Footer({ navigate }) {
-  return (
-    <footer>
-      <div><h2>Grab&Go</h2><p>Coffee / Refreshments / Snacks</p></div>
-      <div><h3>Explore</h3>{['home', 'menu', 'coffee', 'refreshments', 'snacks', 'promos'].map((item) => <button key={item} onClick={() => navigate(item)}>{item}</button>)}</div>
-      <div><h3>Information</h3>{['about', 'gallery', 'reviews', 'contact'].map((item) => <button key={item} onClick={() => navigate(item)}>{item}</button>)}</div>
-      <div><h3>Contact</h3><p>09XX XXX XXXX<br />hello@grabandgo.example<br />Your City, Philippines</p><p>Monday-Sunday<br />8:00 AM - 9:00 PM</p></div>
-    </footer>
-  );
+function Promos({ compact, ...props }) {
+  return <Page title={compact ? 'Special Offers' : 'Good Drinks. Great Deals.'} text="Bundles for fast cravings, friendly prices, and simple cash checkout."><Grid items={promos} {...props} /></Page>;
 }
+
+function Favorites(props) {
+  const items = catalog.filter((x) => props.favorites.includes(x.id));
+  return <Page title="Your Favorites" text="Your saved coffee, refreshments, snacks, and promos.">{items.length ? <Grid items={items} {...props} /> : <Empty title="You haven't saved any favorites yet." text="Save menu items for faster ordering next time." action="Explore Menu" onAction={() => props.go('/menu')} />}</Page>;
+}
+
+function Grid({ items, favorites, fav, add, go }) {
+  return <div className="product-grid">{items.map((x) => <article className="product-card" style={{ '--accent': x.accent }} key={x.id}><div className="photo"><img src={x.image} alt={x.name} /><button onClick={() => fav(x.id)}>{favorites.includes(x.id) ? '\u2665' : '\u2661'}</button></div><div className="body"><span>{x.subcategory}</span><h3>{x.name}</h3><p>{x.description}</p><div className="meta"><small>{rating(x.rating)}</small><strong>{cash(x.price)}</strong></div>{x.originalPrice && <p className="old">Regular {cash(x.originalPrice)}</p>}<button className="primary" onClick={() => add(x)}>Add To Cart</button><button className="secondary" onClick={() => go(`/product/${x.id}`)}>Details</button></div></article>)}</div>;
+}
+
+function ProductDetails({ id, add, go }) {
+  const item = catalog.find((x) => x.id === id); const [qty, setQty] = useState(1); const [size, setSize] = useState('Regular'); const [ice, setIce] = useState('Regular Ice'); const [sugar, setSugar] = useState('100%');
+  if (!item) return <Empty title="Product not found" text="The item you are looking for does not exist." action="Back To Menu" onAction={() => go('/menu')} />;
+  const opts = { qty, size: item.customization ? size : undefined, ice: item.customization ? ice : undefined, sugar: item.customization ? sugar : undefined };
+  return <section className="product-detail"><img src={item.image} alt={item.name} /><div><span className="badge">{item.category}</span><h1>{item.name}</h1><p>{item.description}</p><h2>{cash(item.price + (size === 'Large' && item.customization ? 20 : 0))}</h2><p>{rating(item.rating)}</p><Qty qty={qty} setQty={setQty} />{item.customization && <div className="custom"><Select label="Size" value={size} setValue={setSize} opts={['Regular', 'Large']} /><Select label="Ice" value={ice} setValue={setIce} opts={['No Ice', 'Less Ice', 'Regular Ice', 'Extra Ice']} /><Select label="Sugar" value={sugar} setValue={setSugar} opts={['0%', '25%', '50%', '75%', '100%']} /></div>}<button className="primary" onClick={() => add(item, opts)}>Add To Cart</button><button className="secondary" onClick={() => { add(item, opts); go('/checkout'); }}>Buy Now</button></div></section>;
+}
+
+function CartPage(props) { return <Page title="Shopping Cart" text="Review quantities, totals, and customizations before checkout."><CartContent full {...props} /></Page>; }
+function CartDrawer({ close, ...props }) { return <aside className="drawer"><button className="close" onClick={close}>Close</button><h2>Your Cart</h2><CartContent {...props} /></aside>; }
+function CartContent({ cart, setCart, go, toast, full }) {
+  const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0), discount = subtotal >= 500 ? 50 : 0;
+  const update = (key, qty) => { setCart((xs) => xs.map((x) => x.cartKey === key ? { ...x, qty } : x).filter((x) => x.qty > 0)); if (qty <= 0) toast('\u2713 Removed from cart'); };
+  if (!cart.length) return <Empty title="Your cart is empty" text="Add coffee, refreshments, snacks, or promos to begin." action="Browse Menu" onAction={() => go('/menu')} />;
+  return <><div className={full ? 'cart-list full' : 'cart-list'}>{cart.map((x) => <article className="cart-item" key={x.cartKey}><img src={x.image} alt={x.name} /><div><strong>{x.name}</strong><small>{[x.size, x.ice, x.sugar && `${x.sugar} sugar`].filter(Boolean).join(' / ') || 'Standard'}</small><span>{cash(x.price)} each</span></div><Qty qty={x.qty} setQty={(q) => update(x.cartKey, q)} /><strong>{cash(x.price * x.qty)}</strong><button onClick={() => update(x.cartKey, 0)}>Remove</button></article>)}</div><Summary subtotal={subtotal} discount={discount} delivery={0} /><button className="primary wide" onClick={() => go('/checkout')}>Proceed To Checkout</button>{!full && <button className="secondary wide" onClick={() => go('/cart')}>View Cart</button>}<button className="secondary wide" onClick={() => { setCart([]); toast('\u2713 Cart cleared'); }}>Clear Cart</button></>;
+}
+
+function Checkout({ cart, placeOrder, go }) {
+  const [type, setType] = useState('Pickup'); const [f, setF] = useState({ name: '', mobile: '', email: '', time: '', address: '', landmark: '' }); const [e, setE] = useState({});
+  const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0), discount = subtotal >= 500 ? 50 : 0, delivery = type === 'Delivery' ? 49 : 0;
+  if (!cart.length) return <Empty title="Your cart is empty" text="Checkout starts after you add an item." action="Browse Menu" onAction={() => go('/menu')} />;
+  const submit = (ev) => { ev.preventDefault(); const er = {}; if (!f.name) er.name = 'Name is required.'; if (!f.mobile) er.mobile = 'Mobile number is required.'; if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) er.email = 'Valid email is required.'; if (type === 'Pickup' && !f.time) er.time = 'Pickup time is required.'; if (type === 'Delivery' && !f.address) er.address = 'Address is required.'; setE(er); if (Object.keys(er).length) return; const d = new Date(); placeOrder({ number: `GO-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`, customer: f.name, date: d.toLocaleString(), type, payment: 'Cash', items: cart, subtotal, discount, delivery, total: subtotal - discount + delivery, eta: type === 'Delivery' ? '35-45 minutes' : '15-20 minutes' }); };
+  return <Page title="Checkout" text="Cash only. Pay when you receive your order."><form className="checkout" onSubmit={submit}><fieldset><legend>Customer Information</legend><Field label="Full Name" err={e.name} value={f.name} onChange={(v) => setF({ ...f, name: v })} /><Field label="Mobile Number" err={e.mobile} value={f.mobile} onChange={(v) => setF({ ...f, mobile: v })} /><Field label="Email" err={e.email} value={f.email} onChange={(v) => setF({ ...f, email: v })} /></fieldset><fieldset><legend>Order Type</legend><div className="tabs"><button type="button" className={type === 'Pickup' ? 'active' : ''} onClick={() => setType('Pickup')}>Pickup</button><button type="button" className={type === 'Delivery' ? 'active' : ''} onClick={() => setType('Delivery')}>Delivery</button></div>{type === 'Pickup' ? <Field label="Preferred Pickup Time" err={e.time} value={f.time} onChange={(v) => setF({ ...f, time: v })} /> : <><Field label="Complete Address" err={e.address} value={f.address} onChange={(v) => setF({ ...f, address: v })} /><Field label="Landmark" value={f.landmark} onChange={(v) => setF({ ...f, landmark: v })} /></>}</fieldset><fieldset><legend>Payment</legend><label className="cash"><input type="radio" checked readOnly /> Cash <span>{type === 'Pickup' ? 'Pay upon pickup.' : 'Pay the delivery rider upon receiving your order.'}</span></label></fieldset><Summary subtotal={subtotal} discount={discount} delivery={delivery} /><button className="primary wide">Place Order</button></form></Page>;
+}
+
+function Confirmation({ lastOrder, go }) {
+  if (!lastOrder) return <Empty title="No recent order" text="Place an order to see confirmation details here." action="Order Now" onAction={() => go('/menu')} />;
+  return <Page title="Order Placed Successfully!" text={`Order #${lastOrder.number}`}><section className="confirmation"><p><strong>{lastOrder.customer}</strong> / {lastOrder.date}</p><p>{lastOrder.type} / Payment Method: Cash / Estimated preparation: {lastOrder.eta}</p>{lastOrder.items.map((x) => <p key={x.cartKey}>{x.qty} x {x.name} - {cash(x.price * x.qty)}</p>)}<Summary subtotal={lastOrder.subtotal} discount={lastOrder.discount} delivery={lastOrder.delivery} /><button className="primary" onClick={() => go('/menu')}>Continue Shopping</button><button className="secondary" onClick={() => go('/')}>Back To Home</button></section></Page>;
+}
+
+function Reviews({ reviews, setReviews, compact }) {
+  const [open, setOpen] = useState(false); const [d, setD] = useState({ name: '', rating: '5', comment: '' });
+  const submit = (e) => { e.preventDefault(); if (!d.name || !d.comment) return; setReviews([{ ...d, rating: Number(d.rating), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }, ...reviews]); setOpen(false); setD({ name: '', rating: '5', comment: '' }); };
+  return <Page title="What Our Customers Say" text={`Overall rating: ${rating(4.9)} / ${reviews.length} reviews`} compact={compact}><div className="review-grid">{reviews.map((r, i) => <article className="review" key={i}><span>{r.name[0]}</span><h3>{r.name}</h3><small>{rating(r.rating)}</small><p>{r.comment}</p><time>{r.date}</time></article>)}</div><button className="primary" onClick={() => setOpen(true)}>Write A Review</button>{open && <div className="modal-backdrop"><form className="modal" onSubmit={submit}><button type="button" className="close" onClick={() => setOpen(false)}>Close</button><h2>Write A Review</h2><Field label="Name" value={d.name} onChange={(v) => setD({ ...d, name: v })} /><Select label="Rating" value={d.rating} setValue={(v) => setD({ ...d, rating: v })} opts={['5', '4', '3', '2', '1']} /><label>Comment<textarea value={d.comment} onChange={(e) => setD({ ...d, comment: e.target.value })} /></label><button className="primary wide">Submit Review</button></form></div>}</Page>;
+}
+
+function Gallery({ compact }) {
+  const [cat, setCat] = useState('All'); const [box, setBox] = useState(null); const imgs = cat === 'All' ? gallery : gallery.filter((x) => x.category === cat);
+  return <Page title="A Taste of Grab&Go" text="Coffee, cold beverages, pastries, sandwiches, and cafe moments." compact={compact}><div className="tabs">{['All', 'Coffee', 'Refreshments', 'Snacks', 'Shop'].map((x) => <button className={cat === x ? 'active' : ''} key={x} onClick={() => setCat(x)}>{x}</button>)}</div><div className="gallery">{imgs.map((x) => <button key={x.title} onClick={() => setBox(gallery.indexOf(x))}><img src={x.image} alt={x.title} /><span>{x.title}</span></button>)}</div>{box !== null && <div className="modal-backdrop lightbox"><button className="close" onClick={() => setBox(null)}>Close</button><button onClick={() => setBox((box - 1 + gallery.length) % gallery.length)}>Previous</button><img src={gallery[box].image} alt={gallery[box].title} /><button onClick={() => setBox((box + 1) % gallery.length)}>Next</button></div>}</Page>;
+}
+
+function About() { return <Page title="About Grab&Go" text="Grab&Go is a modern cafe and refreshment destination offering quality coffee, refreshing beverages, and delicious snacks for customers who want something convenient, satisfying, and easy to enjoy on the go."><div className="feature-grid"><Feature title="Quality" text="Fresh ingredients and carefully prepared products." /><Feature title="Convenience" text="Quick and easy ordering." /><Feature title="Variety" text="Coffee, refreshments, and snacks for every craving." /></div><Why /></Page>; }
+function Contact({ toast }) { const [sent, setSent] = useState(false); return <Page title="Get in Touch" text="Your City, Philippines / 09XX XXX XXXX / hello@grabandgo.example"><div className="contact-grid"><section className="map"><h2>Find Grab&Go</h2><p>Your City, Philippines</p><button className="primary">Get Directions</button></section><form className="contact-form" onSubmit={(e) => { e.preventDefault(); e.currentTarget.reset(); setSent(true); toast('\u2713 Message sent'); }}><input required placeholder="Full Name" /><input required type="email" placeholder="Email" /><input required placeholder="Subject" /><textarea required placeholder="Message" /><button className="primary wide">Send Message</button>{sent && <p className="success">Thank you! Your message has been sent.</p>}</form></div><Business /></Page>; }
+
+function SearchOverlay({ close, go, add }) {
+  const [q, setQ] = useState(''); const results = filter(catalog, q, 'All', 'Recommended');
+  return <div className="modal-backdrop"><section className="modal"><button className="close" onClick={close}>Close</button><h2>Search Products</h2><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products by name, category, or description" /><div className="search-results">{results.length ? results.map((x) => <article className="search-result" key={x.id}><img src={x.image} alt={x.name} /><strong>{x.name}<small>{x.category} / {cash(x.price)}</small></strong><button onClick={() => { add(x); close(); }}>Add</button><button onClick={() => go(`/product/${x.id}`)}>View</button></article>) : <Empty title="No products found" text="Try another product name or category." action="View Menu" onAction={() => go('/menu')} />}</div></section></div>;
+}
+
+function Filter({ q, setQ, cat, setCat, sort, setSort }) {
+  return <div className="filter"><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search coffee, drinks, snacks..." /><div className="tabs">{['All', 'Coffee', 'Iced Coffee', 'Refreshments', 'Fruit Drinks', 'Snacks'].map((x) => <button className={cat === x ? 'active' : ''} key={x} onClick={() => setCat(x)}>{x}</button>)}</div><select value={sort} onChange={(e) => setSort(e.target.value)}>{['Recommended', 'Popular', 'Price: Low to High', 'Price: High to Low', 'Highest Rated', 'Alphabetical'].map((x) => <option key={x}>{x}</option>)}</select></div>;
+}
+function filter(items, q, cat, sort) {
+  let xs = items.filter((x) => (!q || `${x.name} ${x.category} ${x.subcategory} ${x.description}`.toLowerCase().includes(q.toLowerCase())) && (cat === 'All' || x.category === cat || x.subcategory === cat));
+  if (sort === 'Popular') xs = xs.filter((x) => x.isBestSeller);
+  if (sort === 'Price: Low to High') xs = [...xs].sort((a, b) => a.price - b.price);
+  if (sort === 'Price: High to Low') xs = [...xs].sort((a, b) => b.price - a.price);
+  if (sort === 'Highest Rated') xs = [...xs].sort((a, b) => b.rating - a.rating);
+  if (sort === 'Alphabetical') xs = [...xs].sort((a, b) => a.name.localeCompare(b.name));
+  return xs;
+}
+
+function Section({ title, text, children }) { return <section className="section"><p className="eyebrow">Grab&Go</p><h2>{title}</h2><p>{text}</p>{children}</section>; }
+function Page({ title, text, children, className = '', compact }) { return <section className={`page ${className} ${compact ? 'compact' : ''}`}><p className="eyebrow">Grab&Go</p><h1>{title}</h1><p>{text}</p>{children}</section>; }
+function Feature({ title, text }) { return <article className="feature"><h3>{title}</h3><p>{text}</p></article>; }
+function Why() { return <Section title="Fast. Fresh. For Every Craving." text="A simple ordering experience for drinks and snacks that fit your day."><div className="feature-grid"><Feature title="Fast" text="Quick ordering and convenient service." /><Feature title="Fresh" text="Quality drinks and delicious snacks." /><Feature title="For Every Craving" text="Coffee, refreshments, and snacks in one place." /></div></Section>; }
+function Highlight({ title, category, go }) { const x = products.find((p) => p.category === category); return <section className="highlight"><img src={x.image} alt={category} /><div><p className="eyebrow">{category}</p><h2>{title}</h2><p>{x.description}</p><button className="secondary" onClick={() => go(`/${category.toLowerCase()}`)}>Explore {category}</button></div></section>; }
+function Business({ go }) { return <section className="business"><h2>Grab&Go</h2><p>Coffee / Refreshments / Snacks</p><strong>{rating(4.9)}</strong><span>Open Today / 8:00 AM - 9:00 PM</span><span>Your City, Philippines / 09XX XXX XXXX</span>{go && <button className="primary" onClick={() => go('/menu')}>Order Now</button>}</section>; }
+function Summary({ subtotal, discount, delivery }) { return <div className="summary"><span>Subtotal <strong>{cash(subtotal)}</strong></span><span>Discount <strong>-{cash(discount)}</strong></span><span>Delivery Fee <strong>{cash(delivery)}</strong></span><span className="total">Total <strong>{cash(subtotal - discount + delivery)}</strong></span></div>; }
+function Qty({ qty, setQty }) { return <div className="qty"><button type="button" onClick={() => setQty(Math.max(1, qty - 1))}>-</button><strong>{qty}</strong><button type="button" onClick={() => setQty(qty + 1)}>+</button></div>; }
+function Select({ label, value, setValue, opts }) { return <label>{label}<select value={value} onChange={(e) => setValue(e.target.value)}>{opts.map((x) => <option key={x}>{x}</option>)}</select></label>; }
+function Field({ label, value, onChange, err }) { return <label>{label}<input value={value} onChange={(e) => onChange(e.target.value)} aria-invalid={Boolean(err)} />{err && <span className="error">{err}</span>}</label>; }
+function Empty({ title, text, action, onAction }) { return <section className="empty"><h2>{title}</h2><p>{text}</p>{action && <button className="primary" onClick={onAction}>{action}</button>}</section>; }
+function Skeleton({ count = 6 }) { return <div className="product-grid">{Array.from({ length: count }).map((_, i) => <div className="skeleton" key={i}><span /><p /><p /></div>)}</div>; }
+function Footer({ go }) { return <footer><div><h2>Grab&Go</h2><p>Coffee / Refreshments / Snacks</p><p>Facebook / Instagram / TikTok</p></div><div><h3>Explore</h3>{['/', '/menu', ...menuCategories, '/promos'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Company</h3>{['/about', '/gallery', '/reviews', '/contact'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Contact</h3><p>09XX XXX XXXX<br />hello@grabandgo.example<br />Your City, Philippines</p><h3>Hours</h3><p>Monday-Sunday<br />8:00 AM - 9:00 PM</p></div></footer>; }
