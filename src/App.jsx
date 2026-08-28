@@ -53,7 +53,7 @@ const defaultReviews = [
 function p(id, name, category, subcategory, description, price, rating, isBestSeller, accent, imageId, customization = true) {
   const photos = [
     '/beans.jpg',
-    'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=900&q=80',
+    '/bean01.jpg',
     'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=900&q=80',
     'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=900&q=80',
     'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80',
@@ -283,4 +283,4 @@ function Select({ label, value, setValue, opts }) { return <label>{label}<select
 function Field({ label, value, onChange, err }) { return <label>{label}<input value={value} onChange={(e) => onChange(e.target.value)} aria-invalid={Boolean(err)} />{err && <span className="error">{err}</span>}</label>; }
 function Empty({ title, text, action, onAction }) { return <section className="empty"><h2>{title}</h2><p>{text}</p>{action && <button className="primary" onClick={onAction}>{action}</button>}</section>; }
 function Skeleton({ count = 6 }) { return <div className="product-grid">{Array.from({ length: count }).map((_, i) => <div className="skeleton" key={i}><span /><p /><p /></div>)}</div>; }
-function Footer({ go }) { return <footer><div><h2>Grab&Go</h2><p>Coffee / Refreshments / Snacks</p><p>Facebook / Instagram / TikTok</p></div><div><h3>Explore</h3>{['/', '/menu', ...menuCategories, '/promos'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Company</h3>{['/about', '/gallery', '/reviews', '/contact'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Contact</h3><p>09XX XXX XXXX<br />hello@grabandgo.example<br />Your City, Philippines</p><h3>Hours</h3><p>Monday-Sunday<br />8:00 AM - 9:00 PM</p></div></footer>; }
+function Footer({ go }) { return <footer><div><h2>Grab&Go</h2><p>Coffee / Refreshments / Snacks</p><p>Facebook / Instagram / TikTok</p></div><div><h3>Explore</h3>{['/', '/menu', ...menuCategories, '/promos'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Company</h3>{['/about', '/gallery', '/reviews', '/contact'].map((x) => <button key={x} onClick={() => go(x)}>{label(x)}</button>)}</div><div><h3>Contact</h3><p>0911 111 1111<br />hello@grabandgo.example<br />Your City, Philippines</p><h3>Hours</h3><p>Monday-Sunday<br />8:00 AM - 9:00 PM</p></div></footer>; }
