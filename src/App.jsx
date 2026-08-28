@@ -52,7 +52,7 @@ const defaultReviews = [
 
 function p(id, name, category, subcategory, description, price, rating, isBestSeller, accent, imageId, customization = true) {
   const photos = [
-    'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=80',
+    '/beans.jpg',
     'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=900&q=80',
     'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=900&q=80',
     'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=900&q=80',
